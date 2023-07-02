@@ -1,0 +1,156 @@
+Generation of a private key with given primes
+https://stackoverflow.com/questions/19850283/how-to-generate-rsa-keys-using-specific-input-numbers-in-openssl
+https://www.openssl.org/docs/manmaster/man3/ASN1_generate_nconf.html
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation/RSA
+$ openssl asn1parse -genconf ans1_privateKey -out newkey.der
+    0:d=0  hl=2 l=  28 cons: SEQUENCE
+    2:d=1  hl=2 l=   1 prim: INTEGER           :00
+    5:d=1  hl=2 l=   2 prim: INTEGER           :BB
+    9:d=1  hl=2 l=   1 prim: INTEGER           :07
+   12:d=1  hl=2 l=   1 prim: INTEGER           :17
+   15:d=1  hl=2 l=   1 prim: INTEGER           :11
+   18:d=1  hl=2 l=   1 prim: INTEGER           :0B
+   21:d=1  hl=2 l=   1 prim: INTEGER           :07
+   24:d=1  hl=2 l=   1 prim: INTEGER           :03
+   27:d=1  hl=2 l=   1 prim: INTEGER           :0E
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation/RSA
+$ openssl rsa -in newkey.der -inform der -text -check
+RSA Private-Key: (8 bit, 2 primes)
+modulus: 187 (0xbb)
+publicExponent: 7 (0x7)
+privateExponent: 23 (0x17)
+prime1: 17 (0x11)
+prime2: 11 (0xb)
+exponent1: 7 (0x7)
+exponent2: 3 (0x3)
+coefficient: 14 (0xe)
+RSA key ok
+writing RSA key
+-----BEGIN RSA PRIVATE KEY-----
+MBwCAQACAgC7AgEHAgEXAgERAgELAgEHAgEDAgEO
+-----END RSA PRIVATE KEY-----
+
+openssl genpkey -algorithm RSA -engine rsaprime -primes primes.txt -out private_key.pem
+
+RSAPrivateKey ::= SEQUENCE {
+    version           INTEGER,
+    modulus           INTEGER,    -- n
+    publicExponent    INTEGER,    -- e
+    privateExponent   INTEGER,    -- d
+    prime1            INTEGER,    -- p
+    prime2            INTEGER,    -- q
+    exponent1         INTEGER,    -- d mod (p-1)
+    exponent2         INTEGER,    -- d mod (q-1)
+    coefficient       INTEGER     -- (inverse of q) mod p
+}
+
+PrivateKeyValues ::= SEQUENCE {
+    version       INTEGER,
+    modulus       INTEGER,    -- n
+    publicExponent INTEGER,    -- e
+    privateExponent INTEGER,    -- d
+    prime1        INTEGER,    -- p
+    prime2        INTEGER,    -- q
+    exponent1     INTEGER,    -- d mod (p-1)
+    exponent2     INTEGER,    -- d mod (q-1)
+    coefficient   INTEGER     -- (inverse of q) mod p
+}
+
+PrivateKey:PrivateKeyValues ::= {
+    version 0,
+    modulus 221,
+    publicExponent 3,
+    privateExponent 147,
+    prime1 17,
+    prime2 13,
+    exponent1 7,
+    exponent2 5,
+    coefficient 10
+}
+
+asn1=SEQUENCE:private_key_seq
+
+[private_key_seq]
+version         =INTEGER:0
+modulus         =INTEGER:221    # n = p * q
+publicExponent  =INTEGER:3      # e
+privateExponent =INTEGER:147    # d
+prime1          =INTEGER:17     # p
+prime2          =INTEGER:13     # q
+exponent1       =INTEGER:7      # d mod (p-1)
+exponent2       =INTEGER:5      # d mod (q-1)
+coefficient     =INTEGER:10     # (inverse of q) mod p
+
+asn1=SEQUENCE:private_key_seq
+
+[private_key_seq]
+version          = INTEGER:0
+modulus          = INTEGER:187    # n = p * q
+publicExponent   = INTEGER:7      # e
+privateExponent  = INTEGER:23     # d
+prime1           = INTEGER:17     # p
+prime2           = INTEGER:11     # q
+exponent1        = INTEGER:7      # d mod (p-1)
+exponent2        = INTEGER:3      # d mod (q-1)
+coefficient      = INTEGER:14     # (inverse of q) mod p
+
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation
+$ openssl rsa -in private_key.pem -pubout -out public_key.pem
+writing RSA key
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation
+$ openssl rsa -in newkey.der -inform der -text -check
+RSA Private-Key: (8 bit, 2 primes)
+modulus: 221 (0xdd)
+publicExponent: 5 (0x5)
+privateExponent: 77 (0x4d)
+prime1: 13 (0xd)
+prime2: 17 (0x11)
+exponent1: 5 (0x5)
+exponent2: 13 (0xd)
+coefficient: 10 (0xa)
+RSA key ok
+writing RSA key
+-----BEGIN RSA PRIVATE KEY-----
+MBwCAQACAgDdAgEFAgFNAgENAgERAgEFAgENAgEK
+-----END RSA PRIVATE KEY-----
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation
+$ openssl asn1parse -genconf private_key.conf -out newkey.der 
+    0:d=0  hl=2 l=  28 cons: SEQUENCE
+    2:d=1  hl=2 l=   1 prim: INTEGER           :00
+    5:d=1  hl=2 l=   2 prim: INTEGER           :DD
+    9:d=1  hl=2 l=   1 prim: INTEGER           :05
+   12:d=1  hl=2 l=   1 prim: INTEGER           :4D
+   15:d=1  hl=2 l=   1 prim: INTEGER           :0D
+   18:d=1  hl=2 l=   1 prim: INTEGER           :11
+   21:d=1  hl=2 l=   1 prim: INTEGER           :05
+   24:d=1  hl=2 l=   1 prim: INTEGER           :0D
+   27:d=1  hl=2 l=   1 prim: INTEGER           :0A
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation
+$ openssl rsa -in newkey.der -inform der -text -check
+RSA Private-Key: (8 bit, 2 primes)
+modulus: 221 (0xdd)
+publicExponent: 5 (0x5)
+privateExponent: 77 (0x4d)
+prime1: 13 (0xd)
+prime2: 17 (0x11)
+exponent1: 5 (0x5)
+exponent2: 13 (0xd)
+coefficient: 10 (0xa)
+RSA key ok
+writing RSA key
+-----BEGIN RSA PRIVATE KEY-----
+MBwCAQACAgDdAgEFAgFNAgENAgERAgEFAgENAgEK
+-----END RSA PRIVATE KEY-----
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation
+$ openssl rsa -in private_key.pem -pubout -out public_key.pem
+writing RSA key
+
+saina@DESKTOP-K259M4O MINGW64 /e/Innovation
+$
