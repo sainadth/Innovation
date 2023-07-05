@@ -1,0 +1,92 @@
+Generating rsa keys with given primes
+1. Choose p and q (2 prime numbers)
+    p = 13
+    q = 17
+
+2. n = p * q = 13 * 17 = 221
+
+3. Determine Euler Totient function of n
+    https://en.wikipedia.org/wiki/Euler%27s_totient_function
+    phi(n) = phi(p * q)
+           = phi(p) * phi(q) since p and q are co-primes
+           = (p - 1) * (q - 1)
+           = 12 * 16
+           = 192
+
+4. choose e such that 
+    e and phi(n) are co-primes
+    e = 5
+
+5. find d such that 
+    using extended euclidian algorithm we can find d
+    which is modulo multipicative inverse of e
+    
+    ed = 1 mod(phi(n))
+    5d = 1 mod(192)
+
+    d  = 77
+
+6. compute d mod (q - 1)
+    exponent1 = 77 mod 16
+              = 13
+
+7. compute d mod (p - 1)
+    exponent2 = 77 mod 12
+              = 5
+
+8. compute modulo multipicative inverse of q (mod p)
+    using extended euclidian algorithm we can find x
+    qx  = 1 mod(p)
+    17x = 1 mod(13)
+
+    x = -3
+      = 13 - 3
+      = 10
+    
+9. Generate a DER (Distinguished Encoding Rules) using asn1 
+    create a file name private_key.conf with below content
+
+        asn1=SEQUENCE:private_key_seq
+
+        [private_key_seq]
+        version          = INTEGER:0
+        modulus          = INTEGER:221    # n = p * q
+        publicExponent   = INTEGER:5      # e
+        privateExponent  = INTEGER:77     # d
+        prime1           = INTEGER:13     # p
+        prime2           = INTEGER:17     # q
+        exponent1        = INTEGER:5      # d mod (p-1)
+        exponent2        = INTEGER:13     # d mod (q-1)
+        coefficient      = INTEGER:10     # (inverse of q) mod p
+
+    execute below command 
+        openssl asn1parse -genconf private_key.conf -out newkey.der
+
+10. using rsa command we can get the key
+    openssl rsa -in newkey.der -inform der -text -check
+
+    OUTPUT:
+        RSA Private-Key: (8 bit, 2 primes)
+        modulus: 221 (0xdd)
+        publicExponent: 5 (0x5)
+        privateExponent: 77 (0x4d)
+        prime1: 13 (0xd)
+        prime2: 17 (0x11)
+        exponent1: 5 (0x5)
+        exponent2: 13 (0xd)
+        coefficient: 10 (0xa)
+        RSA key ok
+        writing RSA key
+        -----BEGIN RSA PRIVATE KEY-----
+        MBwCAQACAgDdAgEFAgFNAgENAgERAgEFAgENAgEK
+        -----END RSA PRIVATE KEY-----
+    
+    Copy the private key into a new file named private_key.pem
+
+11. Generate public key using the private key
+    openssl rsa -in private_key.pem -pubout -out public_key.pem
+    OUTPUT:
+        $ cat public_key.pem 
+        -----BEGIN PUBLIC KEY-----
+        MBswDQYJKoZIhvcNAQEBBQADCgAwBwICAN0CAQU=
+        -----END PUBLIC KEY-----

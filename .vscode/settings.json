@@ -22,5 +22,6 @@
         "-NoExit",
         "-Command",
         "& 'C:\\MinGW\\msys\\1.0\\bin\\bash.exe' -l"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "basic"
 }
