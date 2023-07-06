@@ -8,6 +8,7 @@ OBJ_DIR=obj
 
 # List of header files
 HEADERS=$(wildcard $(INC_DIR)/*.h)
+LIBS = -lssl -lcrypto
 
 # List of source files
 SOURCES=$(wildcard $(SRC_DIR)/*.cpp)
@@ -21,11 +22,11 @@ EXECUTABLE=rsa
 all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $^ -o $@
+	$(CC) $(LDFLAGS) $^ -o $@ $(LIBS)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp $(HEADERS)
 	@mkdir -p $(@D)
-	$(CC) $(CFLAGS) -I$(INC_DIR) $< -o $@
+	$(CC) $(CFLAGS) -I$(INC_DIR) $< -o $@ $(LIBS)
 
 clean:
 	rm -rf $(OBJ_DIR) $(EXECUTABLE)
